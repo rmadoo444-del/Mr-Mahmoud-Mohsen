@@ -1,0 +1,35 @@
+name: Extract Project
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          mkdir -p temp_project
+          unzip -o Moalem_Pro_v2.0_Codemagic_Ready.zip -d temp_project
+
+          ROOT=$(find temp_project -mindepth 1 -maxdepth 1 -type d | head -n 1)
+
+          cp -R "$ROOT"/. .
+
+          rm -rf temp_project
+          rm -f Moalem_Pro_v2.0_Codemagic_Ready.zip
+
+      - name: Commit extracted project
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Prepare Moalem Pro project for Codemagic" || echo "Nothing to commit"
+          git push
